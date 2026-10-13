@@ -1,5 +1,7 @@
 # VideoPair
 
+<img width="3839" height="2072" alt="image" src="https://github.com/user-attachments/assets/fa1eb5b1-fa2d-4706-8e36-f239d7a24857" />
+
 An Electron desktop player for comparing local videos and images in split, wipe,
 and single-source views. Video playback uses Chromium's native media pipeline,
 with frame callbacks and drift correction to keep two sources aligned.
