@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+  >
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VideoPair</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <section class="toolbar" aria-label="Playback controls">
+      <div class="toolbar-group">
+        <label class="button button-primary" for="filePicker">
+          Open media
+        </label>
+        <input
+          id="filePicker"
+          class="visually-hidden"
+          type="file"
+          multiple
+          accept="video/*,image/*,.mkv,.mov,.mp4,.m4v,.webm,.avi,.hevc,.h265,.av1,.ts,.m2ts"
+        >
+        <button class="button" id="clearButton" type="button">Clear</button>
+      </div>
+
+      <div class="toolbar-group transport">
+        <button class="icon-button" id="stepBackButton" type="button" title="Previous frame (comma)" disabled>◀│</button>
+        <button class="play-button" id="playButton" type="button" disabled>
+          <span id="playIcon" aria-hidden="true">▶</span>
+          <span id="playLabel">Play</span>
+        </button>
+        <button class="icon-button" id="stepForwardButton" type="button" title="Next frame (period)" disabled>│▶</button>
+      </div>
+
+      <div class="timeline-group">
+        <input id="timeline" type="range" min="0" max="1000" value="0" disabled aria-label="Playback position">
+        <output id="timeOutput" for="timeline">00:00.000 / 00:00.000</output>
+      </div>
+
+      <div class="toolbar-group">
+        <label class="select-label">
+          Speed
+          <select id="rateSelect">
+            <option value="0.25">0.25×</option>
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+        </label>
+        <label class="check-label">
+          <input id="loopToggle" type="checkbox" checked>
+          Loop
+        </label>
+      </div>
+
+      <div class="toolbar-group audio-controls" aria-label="Audio controls">
+        <button
+          class="button"
+          id="muteButton"
+          type="button"
+          aria-pressed="false"
+          title="Enable or mute audio (M)"
+          disabled
+        >Audio on</button>
+        <label class="select-label">
+          Source
+          <select id="audioSourceSelect" aria-label="Audio source" disabled>
+            <option id="leftAudioOption" value="left">Left</option>
+            <option id="rightAudioOption" value="right" selected>Right</option>
+          </select>
+        </label>
+        <label class="volume-label" title="Audio volume">
+          Volume
+          <input
+            id="volumeSlider"
+            type="range"
+            min="0"
+            max="100"
+            value="100"
+            aria-label="Audio volume"
+            disabled
+          >
+          <output id="volumeOutput" for="volumeSlider">100%</output>
+        </label>
+      </div>
+
+      <div class="toolbar-group segmented" role="group" aria-label="Comparison mode">
+        <button class="segment active" id="splitModeButton" type="button">Split</button>
+        <button class="segment" id="overlapModeButton" type="button">Wipe</button>
+        <button
+          class="segment"
+          id="singleModeButton"
+          type="button"
+          title="Show one full-size video; click the screen to switch sources"
+        >Single</button>
+      </div>
+
+      <div class="toolbar-group segmented" role="group" aria-label="Screen arrangement">
+        <button
+          class="segment active"
+          id="horizontalLayoutButton"
+          type="button"
+          aria-pressed="true"
+          title="Arrange screens side by side"
+        >Horizontal</button>
+        <button
+          class="segment"
+          id="verticalLayoutButton"
+          type="button"
+          aria-pressed="false"
+          title="Stack screens vertically"
+        >Vertical</button>
+      </div>
+
+      <div class="toolbar-group">
+        <button
+          class="button zoom-button"
+          id="zoomResetButton"
+          type="button"
+          title="Reset synchronized video zoom (mouse wheel over either screen)"
+          aria-label="Reset synchronized video zoom, currently 100 percent"
+        >
+          Zoom <span id="zoomOutput">100%</span>
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button class="button" id="statsButton" type="button" aria-pressed="false">Stats</button>
+        <button class="button" id="helpButton" type="button">Help</button>
+      </div>
+    </section>
+
+    <main
+      class="comparison split-mode horizontal-layout"
+      id="comparison"
+      style="--divider-percent: 50%;"
+      aria-label="Media comparison area"
+    >
+      <article class="media-pane left-pane" data-side="left">
+        <div class="media-stage">
+          <video
+            id="leftVideo"
+            class="media-element"
+            preload="auto"
+            playsinline
+            muted
+            disablepictureinpicture
+            disableremoteplayback
+          ></video>
+          <img id="leftImage" class="media-element" alt="Left comparison image" hidden>
+          <div class="empty-state" id="leftEmpty">
+            <strong>Left source</strong>
+            <span>Open or drop a video or image</span>
+          </div>
+          <div class="media-badges" id="leftBadges"></div>
+          <div class="stats-overlay" id="leftStats" hidden></div>
+        </div>
+        <footer class="media-footer">
+          <div class="media-heading">
+            <strong id="leftTitle">No media loaded</strong>
+            <span id="leftSummary">—</span>
+          </div>
+          <div class="metadata-grid" id="leftMetadata" hidden></div>
+        </footer>
+      </article>
+
+      <article class="media-pane right-pane" data-side="right">
+        <div class="media-stage">
+          <video
+            id="rightVideo"
+            class="media-element"
+            preload="auto"
+            playsinline
+            muted
+            disablepictureinpicture
+            disableremoteplayback
+          ></video>
+          <img id="rightImage" class="media-element" alt="Right comparison image" hidden>
+          <div class="empty-state" id="rightEmpty">
+            <strong>Right source</strong>
+            <span>Open or drop a video or image</span>
+          </div>
+          <div class="media-badges" id="rightBadges"></div>
+          <div class="stats-overlay" id="rightStats" hidden></div>
+        </div>
+        <footer class="media-footer">
+          <div class="media-heading">
+            <strong id="rightTitle">No media loaded</strong>
+            <span id="rightSummary">—</span>
+          </div>
+          <div class="metadata-grid" id="rightMetadata" hidden></div>
+        </footer>
+      </article>
+
+      <div
+        class="wipe-divider"
+        id="wipeDivider"
+        role="slider"
+        aria-label="Comparison divider"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow="50"
+        tabindex="0"
+        hidden
+      >
+        <span class="wipe-handle" aria-hidden="true">↔</span>
+      </div>
+
+      <div class="drop-zone" id="dropZone" hidden aria-hidden="true">
+        <strong>Drop up to two media files</strong>
+        <span>The first file loads left; the second loads right.</span>
+      </div>
+    </main>
+
+    <div class="statusbar">
+      <span id="statusText">Ready. Open one or two media files.</span>
+      <span id="syncText">Sync idle</span>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <script src="./renderer.js"></script>
+</body>
+</html>

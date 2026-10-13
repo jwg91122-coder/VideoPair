@@ -1,0 +1,82 @@
+{
+  "name": "videopair",
+  "version": "3.7.4",
+  "description": "Desktop video and image comparison with synchronized playback, split and wipe layouts, fullscreen, and media statistics.",
+  "author": "Ruoshi",
+  "license": "AGPL-3.0-only",
+  "private": true,
+  "main": "src/main.cjs",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "check": "node scripts/check.cjs",
+    "pack": "electron-builder --dir",
+    "build": "electron-builder",
+    "test": "npm run check"
+  },
+  "dependencies": {
+    "@ffprobe-installer/ffprobe": "2.1.2"
+  },
+  "devDependencies": {
+    "electron": "43.7.9",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.bergkamp.videopair",
+    "productName": "VideoPair",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/@ffprobe-installer/**"
+    ],
+    "files": [
+      "public/**/*",
+      "src/**/*.cjs",
+      "assets/icon.png",
+      "package.json",
+      "LICENSE"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "mac": {
+      "category": "public.app-category.video",
+      "icon": "assets/icon.png",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "icon": "assets/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "category": "AudioVideo",
+      "icon": "assets/icon.png",
+      "target": [
+        "AppImage"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  }
+}
