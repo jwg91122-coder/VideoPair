@@ -45,5 +45,3 @@ media pane to choose its source. Images can also be compared.
 | Click in single mode | Switch source |
 
 In fullscreen, move the pointer near the bottom edge to reveal controls.
-See [PERFORMANCE.md](PERFORMANCE.md) for playback and layout details.
-The in-app Help link currently opens the upstream project's documentation.
