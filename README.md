@@ -45,3 +45,12 @@ media pane to choose its source. Images can also be compared.
 | Click in single mode | Switch source |
 
 In fullscreen, move the pointer near the bottom edge to reveal controls.
+
+## License and attribution
+
+This project retains the [GNU Affero General Public License v3](LICENSE) supplied
+with the source. Package metadata uses `AGPL-3.0-only` to match that file.
+The original package author is Ruoshi, and the source references
+[bergkamp/video-comparison-player](https://github.com/bergkamp/video-comparison-player).
+The bundled FFprobe binary and other dependencies retain their own licenses;
+review their notices when distributing a build.
